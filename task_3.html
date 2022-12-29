@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks 3 solution</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <!-- jQuery scripts can be inserted into head instead of body-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        var locations = {}; // locations[id] gives us location with id
+        /*
+        {
+            1:{
+                "locationid": 1,
+                "latitude": 62.888855,
+                  "longitude": 27.6284978,
+                 "address": "Microkatu 1, 70210 KUOPIO",
+                "information": "Savonia Microkatu Campus"
+            },
+            2:{
+                "locationid": 2,
+                "latitude": 62.329815,
+                "longitude": 27.851587,
+                "address": "Opiskelijankatu 3, 78210 VARKAUS",
+                "information": "Savonia Varkaus Campus"
+             }
+        }
+        */
+
+
+        var devices = {}; // this could be made in similar manner as locations
+
+        function deleteRow(id) {
+            console.log(id)
+            $.ajax({
+                type: 'DELETE',
+                url: "http://animalhospital.freemyip.com/sensor/measurement/" + id
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR.responseJSON);
+                alert(textStatus);
+            });
+
+            populateData();
+        }
+
+        function editRow(id) {
+            $("#exampleModalLabel").text("Edit measurement " + id);
+            editMeasurement = id;
+            $.get("http://animalhospital.freemyip.com/sensor/measurement/" + id, function (data, status, xhr) {
+                console.log(data);
+                $("#modalTimestamp").val(data[0].timestamp.substring(0, 23));
+                $("#modalLocation").val(data[0].locationid);
+                $("#modalUnit").val(data[0].unit);
+                $("#modalAmount").val(data[0].amount);
+                $("#modalDevice").val(data[0].deviceid);
+            });
+            $("#exampleModal").modal("show");
+        }
+
+        var editMeasurement;
+
+        function saveMeasurement() {
+            var url, type;
+            if (editMeasurement == undefined) {
+                url = "http://animalhospital.freemyip.com/sensor/measurement";
+                type = "POST";
+            }
+            else {
+                url = "http://animalhospital.freemyip.com/sensor/measurement/" + editMeasurement;
+                type = "PUT";
+            }
+            $.ajax({
+                type: type,
+                url: url,
+                data: {
+                    timestamp: $("#modalTimestamp").val(),
+                    locationid: $("#modalLocation").val(),
+                    unit: $("#modalUnit").val(),
+                    amount: $("#modalAmount").val(),
+                    deviceid: $("#modalDevice").val()
+                }
+            }).done(function (result) {
+                populateData();
+                // re-create tooltips and activate them
+                $("#modalForm").trigger("reset"); // or put empty value in form fields
+                $("#exampleModal").modal("hide");
+            }).fail(function (error) { alert(error.responseJSON) });
+            $("#exampleModalLabel").text("Add measurement");
+            editMeasurement = undefined;
+        }
+
+        function populateData() {
+            var urlparameters = $("#searchFields").serialize(); //something serialized form gives
+            console.log(urlparameters);
+            $.get("http://animalhospital.freemyip.com/sensor/measurement?" + urlparameters, function (data, statur, jqXHR) {
+                console.log(data);
+                $("#tableBody").empty();
+                data.map((measurement) => {
+                    var addStr = `
+                <tr id="${"id" + measurement.measurementid}">
+                    <td>${measurement.timestamp}</td>
+                    <td data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="
+                        ${locations[measurement.locationid] ? locations[measurement.locationid].latitude + "," + locations[measurement.locationid].longitude + ", " + locations[measurement.locationid].address : "" }">
+                        ${locations[measurement.locationid] ? locations[measurement.locationid].information : measurement.locationid}
+                        </td>
+                    <td>${measurement.unit}</td>
+                    <td>${measurement.amount}</td>
+                    <td data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="${devices[measurement.deviceid] ? devices[measurement.deviceid].information : "information missing"}" >
+                        ${devices[measurement.deviceid] ? devices[measurement.deviceid].shortname : measurement.deviceid}
+                        </td>
+                    <td><button onclick="deleteRow('${measurement.measurementid}')">Delete</button></td>
+                    <td><button onclick="editRow('${measurement.measurementid}')">Edit</button></td>
+                </tr>`;
+                    $("#tableBody").append(addStr);
+                })
+            })
+        }
+
+        $(document).ready(function () { // because of this row as it's run only after document tree is created
+            $.get("http://animalhospital.freemyip.com/sensor/location", function (data) {
+                data.map(function (location) {
+                    locations[location.locationid] = location;
+                    // class selector so that both search and modal will use this
+                    $(".selectLocation").append("<option value='" + location.locationid + "'>" + location.information + "</option>")
+                })
+            }).fail(() => { alert("Error in data connection") });
+            $.get("http://animalhospital.freemyip.com/sensor/device", function (data) {
+                data.map(function (device) {
+                    devices[device.deviceid] = device;
+                    $(".selectDevice").append("<option value='" + device.deviceid + "'>" + device.shortname + "</option>")
+
+                })
+            }).fail(() => { alert("Error in data connection") });
+
+            // for dynamically added tooltips https://github.com/twbs/bootstrap/issues/4215
+            $('body').tooltip({
+                selector: '[data-bs-toggle="tooltip"]'
+            });
+
+
+            $("#modalSaveButton").click(function () {
+                saveMeasurement();
+            })
+
+            $("#searchButton").click(function (event) {
+                event.preventDefault();
+                populateData();
+            })
+
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1 id="test"> Tasks 2</h1>
+    <form id="searchFields">
+        <label for="searchUnit">Unit</label>
+        <input type="text" name="unit" id="searchUnit">
+        <label for="searchLocation">Location</label>
+        <select id="searchLocation" name="locationid" class="selectLocation">
+            <option value="">Select</option>
+        </select>
+        <label for="searchDevice">Device</label>
+        <select id="searchDevice" name="deviceid" class="selectDevice">
+            <option value="">Select</option>
+        </select>
+        <input type="Submit" value="Search" id="searchButton">
+    </form>
+    <table class="table-bordered">
+        <thead>
+            <tr>
+                <th>Time of measurement</th>
+                <th data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="This should show locatios">Location
+                </th>
+                <th>Measurement unit</th>
+                <th>Amount</th>
+                <th>Device</th>
+                <th>Delete</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+
+        </tbody>
+    </table>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Add
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add measurement</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="form" id="modalForm">
+                        <!--input fields are here-->
+                        <label for="modalTimestamp">Timestamp</label>
+                        <input type="datetime-local" id="modalTimestamp" step="1"><br>
+                        <label for="modalLocation">Location</label>
+                        <select id="modalLocation" class="selectLocation">
+                            <option value="">Select</option>
+                        </select><br>
+                        <label for="modalUnit">Measurement unit</label>
+                        <input type="text" id="modalUnit"><br>
+                        <label for="modalAmount">Amount</label>
+                        <input type="text" id="modalAmount"><br>
+                        <label for="modalDevice">Device</label>
+                        <select id="modalDevice" class="selectDevice">
+                            <option value="">Select</option>
+                        </select><br>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="modalSaveButton">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
