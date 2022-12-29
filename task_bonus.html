@@ -175,6 +175,12 @@
 
 		// Function to fill the table
 		function populateData() {
+
+			// Updating auto completion before populating the table
+			$("#searchUnit").autocomplete({
+				source: getUnits()
+			});
+
 			// Converting the search fields data to query format
 			var urlParameters = $("#searchFields").serialize();
 
@@ -241,9 +247,13 @@
 				saveMeasurement();
 			});
 
-			// Search unit autocompletion
+			// Shows list of units in the database
 			$("#searchUnit").autocomplete({
+				minLength: 0,
 				source: getUnits()
+			}).focus(function() {
+				// Focuses in the input and searchs empty string to trigger autocompletion
+				$(this).autocomplete('search', $(this).val())
 			});
 
 			$("#searchButton").click(function (event) {
