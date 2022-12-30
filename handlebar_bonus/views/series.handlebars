@@ -1,0 +1,19 @@
+<h3> Statistics </h3>
+<table border=1px>
+    <tr>
+        <th>SN</th><th>Team</th><th>Victories</th><th>Lossess</th><th>Goals_done</th><th>Goals_passed</th><th>Points</th>
+    </tr>
+
+    {{#each series}}
+    <tr>
+        <td> {{this.Pos}} </td>
+        <td> {{this.Name}} </td>
+        <td> {{this.Victories}} </td>
+        <td> {{this.Lossess}} </td>
+        <td> {{this.Goals_done}} </td>
+        <td> {{this.Goals_passed}} </td>
+        <td> {{this.Points}} </td>
+    </tr>
+    {{/each}}
+
+</table>

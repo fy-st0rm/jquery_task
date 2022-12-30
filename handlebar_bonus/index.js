@@ -84,7 +84,6 @@ app.get('/football', async function (req, res) {
 		title  : "Welcome to Football page",
 		events : data.eventList,
 		options: data.locations,
-		content: "<p>Choose something from left list</p>",
 	});
 
 });
@@ -92,64 +91,41 @@ app.get('/football', async function (req, res) {
 // returns rendered seriestable
 app.get('/series', async function (req, res) {
 	var data = await fetch_football_data();
-
-	// Rendering a table
-	var content = `
-	<h3> Statistics </h3>
-	<table border=1px>
-		<tr>
-			<th>SN</th><th>Team</th><th>Victories</th><th>Lossess</th><th>Goals_done</th><th>Goals_passed</th><th>Points</th>
-		</tr>
-	`
+	var series = [];
 	var i = 1;
+
+	// Constructing series
 	data.series.map((team) => {
-		content += `
-			<tr>
-				<td> ${i} </td>
-				<td> ${data.teams[team.Id].Name} </td>
-				<td> ${team.Victories} </td>
-				<td> ${team.Lossess} </td>
-				<td> ${team.Goals_done} </td>
-				<td> ${team.Goals_passed} </td>
-				<td> ${team.Points} </td>
-			</tr>`
+		series.push({
+			Pos         : i,
+			Name        : data.teams[team.Id].Name,
+			Victories   : team.Victories,
+			Lossess     : team.Lossess,
+			Goals_done  : team.Goals_done,
+			Goals_passed: team.Goals_passed,
+			Points      : team.Points
+		});
 		i += 1;
 	});
 
-	content += "</table>"
-	res.render('football', {
-		title  : "Welcome to Football page",
-		events : data.eventList,
-		options: data.locations,
-		content: content
+	res.render('series', {
+		series: series
 	});
 });
 
 // return rendered player table
 app.get('/players', async function (req, res) {
 	var data = await fetch_football_data();
+	var teams = [];
 
-	// Constructing player unordered list
-	var player_content = "<h4>Players:</h4><ul>"
-	data.players.map((player) => {
-		player_content += `<li> ${player.Playernumber} ${player.Firstname} ${player.Lastname} </li>`
-	});
-	player_content += "</ul>"
-
-	// Constructing teams ordered list
-	var team_content = "<h4>Teams:</h4><ol>"
-
+	// Getting names of teams
 	for (const team in data.teams) {
-		team_content += `<li> ${data.teams[team].Name} </li>`
+		teams.push(data.teams[team].Name);
 	}
-	team_content += "</ol>"
-
 	// Rendering the list
-	res.render('football', {
-		title  : "Welcome to Football page",
-		events : data.eventList,
-		options: data.locations,
-		content: player_content + team_content
+	res.render('player', {
+		players: data.players,
+		teams: teams
 	});
 });
 

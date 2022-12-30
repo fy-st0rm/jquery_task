@@ -1,5 +1,16 @@
 <!doctype html>
 <title>Bonus tasks template</title>
+
+<!-- jQuery scripts can be inserted into head instead of body-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- jQuery UI Library -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
+	integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY="
+	crossorigin="anonymous">
+</script>
+
 <style>
 	body {
 	display: grid;
@@ -43,6 +54,20 @@
 	}
 </style>
 
+<script>
+	$(document).ready(function () { // because of this row as it's run only after document tree is created
+		$("#players").on("click", (event) => {
+			$("#mainArticle").load("http://localhost:3003/players");
+			event.preventDefault();
+		});
+
+		$("#series").on("click", (event) => {
+			$("#mainArticle").load("http://localhost:3003/series");
+			event.preventDefault();
+		});
+	});
+</script>
+
 <body>
 	<header id="pageHeader">
 
@@ -65,14 +90,14 @@
 
 	<!-- Main article -->
 	<article id="mainArticle">
-		{{{content}}}
+		<p>Choose something from left list</p>
 	</article>
 
 	<!-- Series table and team choosing board -->
 	<aside id="mainNav">
 	<ul style="list-style: none;">
-		<li><a href="/series">Series table</a></li>
-		<li><a href="/players">Players and teams</a></li>
+		<li><a href="" id="series">Series table</a></li>
+		<li><a href="" id="players">Players and teams</a></li>
 	</ul>
 	</aside>
 
