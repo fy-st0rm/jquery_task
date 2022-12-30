@@ -1,0 +1,19 @@
+{
+  "name": "handlebar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "consolidate": "^0.15.1",
+    "express": "^4.16.3",
+    "express-handlebars": "^5.3.0",
+    "handlebars": "^4.5.1",
+    "mysql": "^2.16.0",
+    "node-fetch": "^3.2.10"
+  }
+}

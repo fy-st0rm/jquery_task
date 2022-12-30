@@ -1,0 +1,14 @@
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Shortname</th>
+        <th>Information</th>
+    </tr>
+    {{#each devices}}
+    <tr>
+        <td>{{this.deviceid}}</td>
+        <td>{{this.shortname}}</td>
+        <td>{{this.information}}</td>
+    </tr>
+    {{/each}}
+</table>

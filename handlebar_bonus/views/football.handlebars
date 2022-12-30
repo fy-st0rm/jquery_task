@@ -1,0 +1,95 @@
+<!doctype html>
+<title>Bonus tasks template</title>
+<style>
+	body {
+	display: grid;
+	grid-template-areas:
+		"header header header"
+		"nav article ads"
+		"footer footer footer";
+	grid-template-rows: 60px 1fr 100px;
+	grid-template-columns: 15% 1fr 25%;
+	grid-gap: 10px;
+	margin: 0;
+	}
+
+	header,
+	footer,
+	article,
+	aside,
+	div {
+	padding: 10px;
+	background: gold;
+	}
+
+	#pageHeader {
+	grid-area: header;
+	}
+
+	#pageFooter {
+	grid-area: footer;
+	}
+
+	#mainArticle {
+	grid-area: article;
+	}
+
+	#mainNav {
+	grid-area: nav;
+	}
+
+	#siteAds {
+	grid-area: ads;
+	}
+</style>
+
+<body>
+	<header id="pageHeader">
+
+	<!-- Title -->
+	<table style="margin-left: auto;">
+		<tr>
+		<td>
+			{{title}}
+		</td>
+		<td>
+			<select>
+				{{#each options}}
+				<option value="{{this.id}}">{{this.information}}</option>
+				{{/each}}
+			</select>
+		</td>
+		</tr>
+	</table>
+	</header>
+
+	<!-- Main article -->
+	<article id="mainArticle">
+		{{{content}}}
+	</article>
+
+	<!-- Series table and team choosing board -->
+	<aside id="mainNav">
+	<ul style="list-style: none;">
+		<li><a href="/series">Series table</a></li>
+		<li><a href="/players">Players and teams</a></li>
+	</ul>
+	</aside>
+
+	<!-- Event lists -->
+	<div id="siteAds">
+	<p>Next events</p>
+	<ul style="list-style: none;">
+		{{#each events}}
+		<li>{{this}}</li>
+		{{/each}}
+	</ul>
+	</div>
+
+	<!-- Contancts -->
+	<footer id="pageFooter">
+	<div style="text-align: center">
+		<p>Contact</p>
+	</div>
+	</footer>
+</body>

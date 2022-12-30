@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <!--jQuery UI CSS CDN -->
+    <link href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <!-- basic jQuery is also required to run jQuery UI and it has to be before UI-library -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.js"></script>
+    <!--jQuery UI script CDN -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>Handlebars test</title>
+    <script>
+        $(function(){
+          // load data from server
+          $( "#buttonSearch" ).click(function() {
+             $("#devices").load("http://localhost:3003/devices")
+          });
+          $("form").submit(function(e){
+            e.preventDefault(); // to prevent form submitting
+          });
+        })
+    </script>
+    <body>
+
+    <h3>Below are some customerss</h3>
+    <ul>
+      {{#each userlist}} <!-- this goes through userlist -->
+      <li>{{this.name}}</li> <!-- this means current value in iteration -->
+      {{/each}}
+    </ul>
+      
+    <h2>Fetch customers</h2>
+    <form>
+        <label for="name">Customer name</label>
+        <input type="text" name="name"/>
+        <p>Select device type</p>
+        <select name="device_key">
+          {{#each devices}}
+          <option value="{{this.deviceid}}">{{this.shortname}} {{this.information}}</option>
+        <!--adds devices to option elements-->
+        {{/each}}
+        </select>
+        <button id="buttonSearch">Search</button>
+    </form>
+
+    <div id="devices">
+
+    </div>
+
+    <div>
+          <!--add languages with index notation to p-elements -->
+      {{#each languages}}
+        <p>{{@index}}. {{this}}</p>
+      {{/each}}    
+    </div>
+
+  </body>
+</html>
